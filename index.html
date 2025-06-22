@@ -13,21 +13,24 @@
 	<script>
 		async function connect() {
 			if (typeof window.ethereum === "undefined") {
-				document.getElementById("result").textContent =
-					"Адрес: " + address + "\nБаланс: " + balanceEth + " ETH";
+				document.getElementById("result").textContent = "erorr";
 				return;
 			}
 
-			const provider = new ethers.providers.Web3Provider(window.ethereum);
-			await provider.send("eth_requestAccounts", []);
+			try {
+				const provider = new ethers.providers.Web3Provider(window.ethereum);
+				await provider.send("eth_requestAccounts", []);
 
-			const signer = provider.getSigner();
-			const address = await signer.getAddress();
-			const balanceWei = await provider.getBalance(address);
-			const balanceEth = ethers.utils.formatEther(balanceWei);
+				const signer = provider.getSigner();
+				const address = await signer.getAddress();
+				const balanceWei = await provider.getBalance(address);
+				const balanceEth = ethers.utils.formatEther(balanceWei);
 
-			document.getElementById("result").textContent =
-				"Адрес: " + address + "\nБаланс: " + balanceEth + " ETH";
+				document.getElementById("result").textContent =
+					"Адрес: " + address + "\nБаланс: " + balanceEth + " ETH";
+			} catch (err) {
+				document.getElementById("result").textContent = err;
+			}
 		}
 	</script>
 </html>
