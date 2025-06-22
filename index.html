@@ -7,13 +7,14 @@
 	</head>
 	<body>
 		<button onclick="connect()">🔗 Подключить кошелёк</button>
+		<div id="result">result</div>
 	</body>
-	<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 	<script>
 		async function connect() {
 			if (typeof window.ethereum === "undefined") {
-				alert("Кошелёк не найден (MetaMask или Trust Wallet).");
+				document.getElementById("result").textContent =
+					"Адрес: " + address + "\nБаланс: " + balanceEth + " ETH";
 				return;
 			}
 
@@ -27,8 +28,6 @@
 
 			document.getElementById("result").textContent =
 				"Адрес: " + address + "\nБаланс: " + balanceEth + " ETH";
-
-			alert("Подключено: " + address);
 		}
 	</script>
 </html>
