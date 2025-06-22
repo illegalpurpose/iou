@@ -1,31 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Document</title>
+		<title>Перевод ETH с ethers.js</title>
+		<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 	</head>
-	<body style="background-color: #fff; color: black">
-		<button onclick="connect()">🔗 Подключить кошелёк</button>
-		<div id="result">result</div>
-	</body>
-	<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/tronweb@latest/dist/TronWeb.js"></script>
-	<script>
-		async function connect() {
-			if (!window.tronWeb || !window.tronWeb.defaultAddress.base58) {
-				document.getElementById("result").textContent =
-					"Установи TronLink: https://www.tronlink.org/";
-				return;
+	<body>
+		<button onclick="connect()">Подключиться</button><br /><br />
+
+		<pre id="result">Результат будет здесь...</pre>
+
+		<hr />
+
+		<h3>Отправить ETH</h3>
+		<input
+			id="toAddress"
+			type="text"
+			placeholder="Адрес получателя"
+			style="width: 300px"
+		/>
+		<input
+			id="amount"
+			type="text"
+			placeholder="Количество ETH"
+			style="width: 150px"
+		/>
+		<button onclick="sendEth()">Отправить</button>
+
+		<script>
+			let signer;
+
+			async function connect() {
+				if (!window.ethereum) {
+					document.getElementById("result").textContent =
+						"Ошибка: MetaMask не найден";
+					return;
+				}
+
+				try {
+					const provider = new ethers.providers.Web3Provider(window.ethereum);
+					await provider.send("eth_requestAccounts", []);
+					signer = provider.getSigner();
+
+					const address = await signer.getAddress();
+					const balanceWei = await provider.getBalance(address);
+					const balanceEth = ethers.utils.formatEther(balanceWei);
+
+					document.getElementById(
+						"result"
+					).textContent = `Подключён адрес: ${address}\nБаланс: ${balanceEth} ETH`;
+				} catch (err) {
+					document.getElementById("result").textContent =
+						"Ошибка: " + err.message;
+				}
 			}
 
-			const address = window.tronWeb.defaultAddress.base58;
-			document.getElementById("result").textContent = ("TRX адрес:", address);
+			async function sendEth() {
+				if (!signer) {
+					alert("Сначала подключитесь к кошельку!");
+					return;
+				}
 
-			const balance = await window.tronWeb.trx.getBalance(address);
-			const trx = window.tronWeb.fromSun(balance);
-			document.getElementById("result").textContent = ("Баланс TRX:", trx);
-		}
-	</script>
-	<button onclick="connect()">🔗 Подключить TronLink</button>
+				const to = document.getElementById("toAddress").value.trim();
+				const amount = document.getElementById("amount").value.trim();
+
+				if (!ethers.utils.isAddress(to)) {
+					alert("Введите корректный адрес получателя");
+					return;
+				}
+				if (isNaN(amount) || Number(amount) <= 0) {
+					alert("Введите корректное количество ETH");
+					return;
+				}
+
+				try {
+					const tx = await signer.sendTransaction({
+						to: to,
+						value: ethers.utils.parseEther(amount)
+					});
+
+					document.getElementById(
+						"result"
+					).textContent = `Транзакция отправлена, хэш:\n${tx.hash}`;
+
+					// Можно ждать подтверждения (опционально)
+					await tx.wait();
+					document.getElementById("result").textContent +=
+						"\nТранзакция подтверждена!";
+				} catch (err) {
+					document.getElementById("result").textContent =
+						"Ошибка при отправке: " + err.message;
+				}
+			}
+		</script>
+	</body>
 </html>
