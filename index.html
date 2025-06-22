@@ -26,6 +26,8 @@
 		/>
 		<button onclick="sendEth()">Отправить</button>
 
+		<pre id="result2">Результат будет здесь...</pre>
+
 		<script>
 			let signer;
 
@@ -64,11 +66,13 @@
 				const amount = document.getElementById("amount").value.trim();
 
 				if (!ethers.utils.isAddress(to)) {
-					alert("Введите корректный адрес получателя");
+					document.getElementById("result2").textContent =
+						"Введите корректный адрес получателя";
 					return;
 				}
 				if (isNaN(amount) || Number(amount) <= 0) {
-					alert("Введите корректное количество ETH");
+					document.getElementById("result2").textContent =
+						"Введите корректное количество ETH";
 					return;
 				}
 
@@ -79,7 +83,7 @@
 					});
 
 					document.getElementById(
-						"result"
+						"result2"
 					).textContent = `Транзакция отправлена, хэш:\n${tx.hash}`;
 
 					// Можно ждать подтверждения (опционально)
